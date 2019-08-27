@@ -1,11 +1,11 @@
 import java.io.Serializable;
 
-public class Pattern {
+public class Pattern implements Serializable {
 
 	//Fields ****************************************************
 
 	double[] x;
-	int conClass;
+	int conClass;	//ラベル識別問題 教師信号
 
 	// **********************************************************
 
