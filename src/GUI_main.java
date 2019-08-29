@@ -1,13 +1,21 @@
+
+
 import java.io.File;
 import java.util.ArrayList;
 
+import classifier.Classifier;
+import classifier.StaticClassifierFunc;
 import controlP5.ControlEvent;
 import controlP5.ControlP5;
 import controlP5.DropdownList;
 import controlP5.Slider;
 import controlP5.Textarea;
 import controlP5.Textfield;
+import fml.KnowledgeBase;
+import fuzzyPartitioning.FuzzyPartitioning2;
 import jfml.term.FuzzyTermType;
+import methods.DataLoader;
+import methods.DataSetInfo;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -82,8 +90,7 @@ public class GUI_main {
 	public void setup() {
 		cp5 = main.cp5;
 //		font = main.createFont("Arial-Bold", 12);
-//		font = main.createFont("Arial Bold", 12);
-    font = main.loadFont("Arial-BoldMT-12.vlw");
+		font = main.createFont("Arial Bold", 12);
 		x = new float[h + 1];
 		for(int i = 0; i < h; i++) {
 			x[i] = (float)i / (float)h;
@@ -98,8 +105,8 @@ public class GUI_main {
 		makeTools();
 
 		//TODO 消す Default Dataset
-		String datasetFile = "dataset/example_newthyroid_tra.dat";
-		this.fileName.setText(datasetFile);
+		String newthyroid = "dataset/newthyroid/a0_0_newthyroid-10tra.dat";
+		this.fileName.setText(newthyroid);
 //		loadDataset(newthyroid);
 	}
 
@@ -184,8 +191,7 @@ public class GUI_main {
 			.setPosition(toolOriginX + 200, toolOriginY + 260)
 			.setSize(250, 40)
 			.setAutoClear(false)
-			.setLabel("")
-      .setFont(font);
+			.setLabel("");
 
 		//Toggle Switch for isShow the Histogram
 		cp5.addToggle("isShowHistogram")
@@ -207,8 +213,7 @@ public class GUI_main {
 			.setPosition(toolOriginX + 200, toolOriginY + 315)
 			.setSize(250, 40)
 			.setAutoClear(false)
-			.setLabel("")
-      .setFont(font);
+			.setLabel("");
 
 		//List for Dataset
 		datasetList =
@@ -248,7 +253,6 @@ public class GUI_main {
 			.setBarHeight(40)
 			.setItemHeight(20)
 			.setDefaultValue(0)
-      .setFont(font)
 			.close();
 
 		//List for Variable
@@ -260,7 +264,6 @@ public class GUI_main {
 			.setBarHeight(40)
 			.setItemHeight(20)
 			.setDefaultValue(0)
-      .setFont(font)
 			.close();
 
 		//List for Dimension
@@ -272,15 +275,14 @@ public class GUI_main {
 			.setBarHeight(40)
 			.setItemHeight(20)
 			.setDefaultValue(0)
-      .setFont(font)
 			.close();
 
 	}
 
 	//****************************************
 	public void draw() {
-		main.background(200);
-		//main.background(255);//TODO
+//		main.background(200);
+		main.background(255);//TODO
 
 		main.rectMode(PApplet.CORNER);
 
@@ -288,11 +290,10 @@ public class GUI_main {
 		main.stroke(0);
 		main.fill(255);
 		main.rect(originX, height - originY, protWidth, protHeight);
-		//main.strokeWeight(4);//TODO
-		//main.line(originX, originY, originX, originY - protHeight);
-		//main.line(originX, originY, originX + protWidth, originY);
-		//main.line(originX + protWidth, originY, originX + protWidth, originY - protHeight);
-
+//		main.strokeWeight(4);//TODO
+//		main.line(originX, originY, originX, originY - protHeight);
+//		main.line(originX, originY, originX + protWidth, originY);
+//		main.line(originX + protWidth, originY, originX + protWidth, originY - protHeight);
 
 		//Tool Area
 		main.fill(255);
@@ -669,16 +670,14 @@ public class GUI_main {
 						kb.getDomainLeft(), kb.getDomainRight(),
 						sliderValues[idx],
 						toolOriginX + 50, toolOriginY + 410 + (80*idx),
-						150, 30)
-            .setFont(font);
+						150, 30);
 
 		numbers[idx] =
 		cp5.addTextfield("number" + String.valueOf(idx),
 						 toolOriginX + 225, toolOriginY + 410 + (80*idx),
 						 50, 30)
 						.setAutoClear(false)
-						.setText(String.format("%.2f", sliderValues[idx]))
-            .setFont(font);
+						.setText(String.format("%.2f", sliderValues[idx]));
 	}
 
 	public void setNowParams() {
@@ -849,7 +848,7 @@ public class GUI_main {
 			else {
 				kb.getVariable(currentDim).getTerm(i).calcY(x);
 				//color
-				//main.stroke(0);//TODO
+//				main.stroke(0);//TODO
 				if(currentVariable == i) {
 					main.stroke(ControlP5.RED);
 				} else {
