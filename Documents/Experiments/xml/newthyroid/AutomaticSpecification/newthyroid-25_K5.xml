@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<fuzzySystem xmlns="http://www.ieee1855.org">
+    <knowledgeBase>
+        <fuzzyVariable name="0" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <trapezoidShape param1="0.0" param2="0.0" param3="0.24683544" param4="0.37341774"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <trapezoidShape param1="0.24683544" param2="0.37341774" param3="0.37341774" param4="0.5"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <trapezoidShape param1="0.37341774" param2="0.5" param3="0.56329113" param4="0.76582277"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <trapezoidShape param1="0.56329113" param2="0.76582277" param3="0.8006329" param4="0.9335443"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="4" complement="false">
+                <trapezoidShape param1="0.8006329" param2="0.9335443" param3="1.0" param4="1.0"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="1" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <trapezoidShape param1="0.0" param2="0.0" param3="0.10383064" param4="0.31149194"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <trapezoidShape param1="0.10383064" param2="0.31149194" param3="0.39314517" param4="0.4576613"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <trapezoidShape param1="0.39314517" param2="0.4576613" param3="0.4576613" param4="0.5221774"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <trapezoidShape param1="0.4576613" param2="0.5221774" param3="0.5625" param4="0.7076613"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="4" complement="false">
+                <trapezoidShape param1="0.5625" param2="0.7076613" param3="1.0" param4="1.0"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="2" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <trapezoidShape param1="0.0" param2="0.0" param3="0.035714287" param4="0.07653061"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <trapezoidShape param1="0.035714287" param2="0.07653061" param3="0.07653061" param4="0.11734694"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <trapezoidShape param1="0.07653061" param2="0.11734694" param3="0.11734694" param4="0.15816326"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <trapezoidShape param1="0.11734694" param2="0.15816326" param3="0.20918368" param4="0.35204083"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="4" complement="false">
+                <trapezoidShape param1="0.20918368" param2="0.35204083" param3="1.0" param4="1.0"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="3" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <trapezoidShape param1="0.0" param2="0.0" param3="0.007992895" param4="0.015097691"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <trapezoidShape param1="0.007992895" param2="0.015097691" param3="0.015097691" param4="0.022202486"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <trapezoidShape param1="0.015097691" param2="0.022202486" param3="0.024422735" param4="0.035968028"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <trapezoidShape param1="0.024422735" param2="0.035968028" param3="0.04973357" param4="0.088809945"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="4" complement="false">
+                <trapezoidShape param1="0.04973357" param2="0.088809945" param3="1.0" param4="1.0"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="4" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <trapezoidShape param1="0.0" param2="0.0" param3="0.012280702" param4="0.028070176"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <trapezoidShape param1="0.012280702" param2="0.028070176" param3="0.028070176" param4="0.04385965"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <trapezoidShape param1="0.028070176" param2="0.04385965" param3="0.06315789" param4="0.11754386"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <trapezoidShape param1="0.06315789" param2="0.11754386" param3="0.12105263" param4="0.18245614"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="4" complement="false">
+                <trapezoidShape param1="0.12105263" param2="0.18245614" param3="1.0" param4="1.0"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+    </knowledgeBase>
+</fuzzySystem>

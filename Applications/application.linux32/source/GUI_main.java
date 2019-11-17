@@ -352,8 +352,8 @@ public class GUI_main {
 				return;
 			}
 
-			double F = 0.5;	//TODO
-			kb.initInhomogeneous2( new FuzzyPartitioning2().startPartition(datasets.get(currentDataSet), K, F) );
+			double F = 1.0;	//TODO to be given
+			kb.initInhomogeneous2( FuzzyPartitioning.startPartition(datasets.get(currentDataSet), K, F) );
 			currentShapeType = kb.getVariable(currentDim).getCurrentShapeType();
 
 			//update K

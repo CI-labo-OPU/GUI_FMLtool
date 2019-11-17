@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<fuzzySystem xmlns="http://www.ieee1855.org">
+    <knowledgeBase>
+        <fuzzyVariable name="0" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <gaussianShape param1="0.0" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <gaussianShape param1="0.33" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <gaussianShape param1="0.67" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <gaussianShape param1="1.0" param2="0.09"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="1" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <gaussianShape param1="0.0" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <gaussianShape param1="0.33" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <gaussianShape param1="0.67" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <gaussianShape param1="1.0" param2="0.09"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="2" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <gaussianShape param1="0.0" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <gaussianShape param1="0.33" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <gaussianShape param1="0.67" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <gaussianShape param1="1.0" param2="0.09"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+        <fuzzyVariable name="3" scale="" domainleft="0.0" domainright="1.0" type="input">
+            <fuzzyTerm name="0" complement="false">
+                <gaussianShape param1="0.0" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="1" complement="false">
+                <gaussianShape param1="0.33" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="2" complement="false">
+                <gaussianShape param1="0.67" param2="0.09"/>
+            </fuzzyTerm>
+            <fuzzyTerm name="3" complement="false">
+                <gaussianShape param1="1.0" param2="0.09"/>
+            </fuzzyTerm>
+        </fuzzyVariable>
+    </knowledgeBase>
+</fuzzySystem>

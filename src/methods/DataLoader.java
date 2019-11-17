@@ -29,5 +29,5 @@ public class DataLoader {
 	    } catch(IOException e){
 	      e.printStackTrace();
 	    }
-		}
+	}
 }

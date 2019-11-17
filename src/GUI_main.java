@@ -12,7 +12,7 @@ import controlP5.Slider;
 import controlP5.Textarea;
 import controlP5.Textfield;
 import fml.KnowledgeBase;
-import fuzzyPartitioning.FuzzyPartitioning2;
+import fuzzyPartitioning.FuzzyPartitioning;
 import jfml.term.FuzzyTermType;
 import methods.DataLoader;
 import methods.DataSetInfo;
@@ -140,8 +140,12 @@ public class GUI_main {
 		int colorMax = 10;
 		colors = new int[colorMax];
 	    this.colors[0] = main.color(255, 204, 255);
+//	    this.colors[0] = main.color(204, 255, 204);
 	    this.colors[1] = main.color(102, 255, 153);
+//	    this.colors[1] = main.color(204, 255, 255);
 	    this.colors[2] = main.color(102, 255, 255);
+//	    this.colors[2] = main.color(255, 204, 204);
+
 	    this.colors[3] = main.color(244, 164, 96);
 	    this.colors[4] = main.color(147, 112, 219);
 	    this.colors[5] = main.color(255, 255, 0);
@@ -281,8 +285,8 @@ public class GUI_main {
 
 	//****************************************
 	public void draw() {
-//		main.background(200);
-		main.background(255);//TODO
+		main.background(200);
+//		main.background(255);//TODO
 
 		main.rectMode(PApplet.CORNER);
 
@@ -291,9 +295,9 @@ public class GUI_main {
 		main.fill(255);
 		main.rect(originX, height - originY, protWidth, protHeight);
 //		main.strokeWeight(4);//TODO
-//		main.line(originX, originY, originX, originY - protHeight);
-//		main.line(originX, originY, originX + protWidth, originY);
-//		main.line(originX + protWidth, originY, originX + protWidth, originY - protHeight);
+//		main.line(originX, originY, originX, originY - protHeight);	//Left
+//		main.line(originX, originY, originX + protWidth, originY);	//Bottom
+//		main.line(originX + protWidth, originY, originX + protWidth, originY - protHeight);	//Right
 
 		//Tool Area
 		main.fill(255);
@@ -353,8 +357,8 @@ public class GUI_main {
 				return;
 			}
 
-			double F = 0.5;	//TODO
-			kb.initInhomogeneous2( new FuzzyPartitioning2().startPartition(datasets.get(currentDataSet), K, F) );
+			double F = 1.0;	//TODO to be given
+			kb.initInhomogeneous2( FuzzyPartitioning.startPartition(datasets.get(currentDataSet), K, F) );
 			currentShapeType = kb.getVariable(currentDim).getCurrentShapeType();
 
 			//update K
@@ -848,12 +852,12 @@ public class GUI_main {
 			else {
 				kb.getVariable(currentDim).getTerm(i).calcY(x);
 				//color
-//				main.stroke(0);//TODO
 				if(currentVariable == i) {
 					main.stroke(ControlP5.RED);
 				} else {
 					main.stroke(0);
 				}
+//				main.stroke(0);//TODO
 				main.strokeWeight(4);
 				for(int j = 0; j < h; j++) {
 					main.line((x[j] * protWidth) + originX,

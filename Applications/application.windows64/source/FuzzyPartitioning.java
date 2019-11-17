@@ -1,165 +1,259 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class FuzzyPartitioning {
-	public MembershipFunction MF = new MembershipFunction ();
-	public double numOfTotalPoints = 0;
+	// ************************************************************
 
-	public FuzzyPartitioning(){}
+	// ************************************************************
 
+	// ************************************************************
 
-	public ArrayList<ArrayList<Double>> startPartition(DataSetInfo tra){
-		ArrayList<ArrayList<Double>> points = new ArrayList<ArrayList<Double>>();
+	public static ArrayList<ArrayList<double[]>> startPartition(DataSetInfo tra, int K, double F){
+		ArrayList<ArrayList<double[]>> trapezoids = new ArrayList<ArrayList<double[]>>();
 
-		for(int attri = 0; attri < tra.getNdim(); ++attri) {
-			ArrayList<Double> Coodinate = new ArrayList <Double> ();
-			ArrayList<Boolean> use = new ArrayList <Boolean> ();
-			double[] x = new double [tra.getDataSize()];
-			double[] index = new double [tra.getDataSize()];
-			for (int p = 0; p < tra.getDataSize(); ++p){
-				x[p] = tra.getPattern(p).getDimValue(attri);
-				index[p] = p;
+		for(int dim_i = 0; dim_i < tra.getNdim(); dim_i++) {
+			//Step 0. Judge Categoric.
+			if(tra.getPattern(0).getDimValue(dim_i) < 0) {
+				//If it's categoric, do NOT partitinon.
+				trapezoids.add(new ArrayList<double[]>());
+				continue;
 			}
-			StaticGeneralFunc.multiQuickSort(x, index);
-			double u = x[x.length - 1], l = x[0];
-			makeFuzzy(tra, true, attri, l, x, u, index, Coodinate);
-			Coodinate.add(0, l);
-			Coodinate.add(u);
-			Collections.sort(Coodinate);
-			for (int i = 0; i < Coodinate.size(); ++i){
-				use.add(true);
+
+			//Step 1. Sort patterns by attribute "dim_i"
+			ArrayList<ForSortPattern> patterns = new ArrayList<ForSortPattern>();
+			for(int p = 0; p < tra.getDataSize(); p++) {
+				patterns.add( new ForSortPattern(tra.getPattern(p).getDimValue(dim_i),
+												 tra.getPattern(p).getConClass()));
 			}
-			points.add(Coodinate);
-			MF.point.add(Coodinate);
-			MF.isUse.add(use);
-//			MF.addWFE(attri, tra);
-			numOfTotalPoints += Coodinate.size();
+			Collections.sort(patterns, new Comparator<ForSortPattern>() {
+				@Override
+				//Ascending Order
+				public int compare(ForSortPattern o1, ForSortPattern o2) {
+					if(o1.getX() > o2.getX()) {return 1;}
+					else if(o1.getX() < o2.getX()) {return -1;}
+					else {return 0;}
+				}
+			});
+
+			//Step 2. Optimal Splitting.
+			ArrayList<Double> partitions = optimalSplitting(patterns, K, tra.getCnum());
+
+			//Step 3. Fuzzify partitions
+			trapezoids.add(makeTrapezoids(partitions, F));
 		}
-
-		return points;
+		return trapezoids;
 	}
 
-	void makeFuzzy(DataSetInfo tra, boolean first, int attri, double low, double[] x, double up, double[] index, ArrayList<Double> Coodinate){
-		if (x.length >= 0.02 * tra.getDataSize()){
-			double min = Double.MAX_VALUE;
-			double xmin = -1.0;
-			int minp = -1;
-			for (int p = 1; p < x.length - 1; ++p){
-				double[][] points = {{low, low, low, x[p]}, {low, x[p],x[p], up}, {x[p], up, up, up}};
-				double WFEnt = WFEnt(tra, attri, points, index);
-				if (min >= WFEnt){
-					min = WFEnt;
-					xmin = x[p];
-					minp = p;
+	/**
+	 * <h1>Class-entropy based searching optimal-partitionings</h1>
+	 * @param patterns : {@literal ArrayList<ForSortPattern>} :
+	 * @param K : int : Given number of partitions
+	 * @param Cnum : int : #of classes
+	 * @return
+	 */
+	public static ArrayList<Double> optimalSplitting(ArrayList<ForSortPattern> patterns, int K, int Cnum) {
+		double D = patterns.size();
+
+		ArrayList<Double> partitions = new ArrayList<>();
+		partitions.add(0.0);
+		partitions.add(1.0);
+
+		//Step 1. Collect class changing point.
+		ArrayList<Double> candidate = new ArrayList<>();
+		double point = 0;
+		candidate.add(point);
+		for(int p = 1; p < patterns.size(); p++) {
+			if(patterns.get(p-1).getConClass() != patterns.get(p).getConClass()) {
+				point = 0.5 * (patterns.get(p-1).getX() + patterns.get(p).getX());
+			}
+			if(!candidate.contains(point)) {
+				candidate.add(point);
+			}
+		}
+		candidate.remove(0);
+
+		//Step 2. Search K partitions which minimize class-entropy.
+		for(int k = 2; k <= K; k++) {
+			double[] entropy = new double[candidate.size()];
+
+			//Calculate class-entropy for all candidates.
+			for(int i = 0; i < candidate.size(); i++) {
+				point = candidate.get(i);
+
+				//Step 1. Count #of patterns in each partition.
+				//D_jh means #of patterns which is in partition j and whose class is h.
+				double[][] Djh = new double[k][Cnum];
+				double[] Dj = new double[k];
+
+				ArrayList<Double> range = new ArrayList<>();
+				Collections.sort(partitions);	//Ascending Order
+				boolean yetContain = true;
+				for(int r = 0; r < partitions.size(); r++) {
+					if(yetContain && point < partitions.get(r)) {
+						range.add(point);
+						yetContain = false;
+					}
+					range.add(partitions.get(r));
+				}
+				for(int part = 0; part < k; part++) {
+					final double LEFT = range.get(part);
+					final double RIGHT = range.get(part+1);
+					for(int c = 0; c < Cnum; c++) {
+						final int CLASSNUM = c;
+
+						Djh[part][c] = 0;
+						for(int pp = 0; pp < patterns.size(); pp++) {
+							ForSortPattern p = patterns.get(pp);
+							if(p.getConClass() == CLASSNUM) {
+								if(LEFT <= p.getX() && p.getX() <= RIGHT) {
+									if(p.getX() == 0.0 || p.getX() == 1.0) {
+										Djh[part][c] += 1.0;
+									}
+									else if(p.getX() == LEFT || p.getX() == RIGHT) {
+										Djh[part][c] +=  0.5;
+									}
+									else {
+										Djh[part][c] +=  1.0;
+									}
+								}
+							}
+						}
+
+						//Without Classes
+						Dj[part] += Djh[part][c];
+					}
+				}
+
+				//Step 2. Calculate class-entropy.
+				double sum = 0.0;
+				for(int j = 0; j < k; j++) {
+					double subsum = 0.0;
+					for(int h = 0; h < Cnum; h++) {
+						if(Dj[j] != 0.0 && (Djh[j][h] / Dj[j]) > 0.0) {
+							double log = (Djh[j][h] / Dj[j]) * StaticGeneralFunc.log( (Djh[j][h] / Dj[j]), 2.0);
+							subsum += (Djh[j][h] / Dj[j]) * StaticGeneralFunc.log( (Djh[j][h] / Dj[j]), 2.0);
+						}
+					}
+					sum += (Dj[j] / D) * subsum;
+				}
+				entropy[i] = -sum;
+			}
+
+			//Find minimize class-entropy.
+			double min = entropy[0];
+			int minIndex = 0;
+			for(int i = 1; i < candidate.size(); i++) {
+				if(entropy[i] < min) {
+					min = entropy[i];
+					minIndex = i;
 				}
 			}
-			double[] divIndex1 = Arrays.copyOfRange(index, 0, minp + 1);
-			double[] divx1 = Arrays.copyOfRange(x, 0, minp + 1);
-			double[] divIndex2 =Arrays.copyOfRange(index, minp + 1, index.length);
-			double[] divx2 = Arrays.copyOfRange(x, minp + 1, x.length);
-			Coodinate.add(xmin);
-			if ((FGain(tra, first, attri, low, up, min, index) >= (StaticGeneralFunc.log((double)index.length - 1.0, 2.0) + delta(tra, first, attri, low, up, xmin, index)) / (double)index.length) && xmin > -1.0){
-				makeFuzzy(tra, false, attri, low, divx1, xmin, divIndex1, Coodinate);
-				makeFuzzy(tra, false, attri, xmin, divx2, up, divIndex2, Coodinate);
+			partitions.add(candidate.get(minIndex));
+			candidate.remove(minIndex);
+			if(candidate.size() == 0) {
+				break;
 			}
 		}
+		Collections.sort(partitions);	//Ascending Order
+		return partitions;
 	}
 
-	double WFEnt(DataSetInfo tra, int attri, double[][] points, double[] index){
-		double sum = 0;
-		for (int i = 0; i < points.length; ++i){
-			double cardinality = cardinality(tra, attri, points[i], index);
-			sum += (cardinality / index.length) * FEnt(tra, attri, cardinality, points[i], index);
+	public static ArrayList<double[]> makeTrapezoids(ArrayList<Double> partitions, double F) {
+		ArrayList<double[]> trapezoids = new ArrayList<>();
+
+		ArrayList<Double> newPoints = new ArrayList<>();
+
+		//Step 1. Fuzzify each partition without edge of domain.
+		for(int i = 1; i < partitions.size() - 1; i++) {
+			double left = partitions.get(i - 1);
+			double point = partitions.get(i);
+			double right = partitions.get(i + 1);
+			newPoints.addAll(fuzzify(left, point, right, F));
 		}
-		return sum;
+
+		//Step 2. Take 4 points as trapezoids in order from head of newPoints.
+		newPoints.add(0, 0.0);
+		newPoints.add(0, 0.0);
+		newPoints.add(1.0);
+		newPoints.add(1.0);
+
+		int head = 0;
+		int K = (newPoints.size() - 2) / 2;
+		for(int i = 0; i < K; i++) {
+			double[] trapezoid = new double[4];
+			for(int j = 0; j < 4; j++) {
+				trapezoid[j] = newPoints.get(head + j);
+			}
+			trapezoids.add(trapezoid);
+			head += 2;
+		}
+
+		return trapezoids;
 	}
 
-	double cardinality(DataSetInfo tra, int attri, double[] point, double[] index){
-		double sum = 0;
-		for (int p = 0; p < index.length; ++p){
-			sum += StaticFuzzyFunc.calcMenbership(point, tra.getPattern((int)index[p]).getDimValue(attri));
+	/**
+	 * <h1>Fuzzifying Partition</h1>
+	 * Fuzzify two partitions [left, point] and [point, right].<br>
+	 *
+	 * @param left : double : Domain Left
+	 * @param point : double : Crisp Point
+	 * @param right : double : Domain Right
+	 * @param F : double : Grade of overwraping
+	 * @return {@literal ArrayList<Double} : fuzzfied two point
+	 */
+	public static ArrayList<Double> fuzzify(double left, double point, double right, double F) {
+		ArrayList<Double> two = new ArrayList<>();
+
+		//Step 1. Minimize Range (left-point) or (point-right)
+		if( (point-left) < (right-point) ) {
+			//point is closer to left than right, then right moves.
+			right = point + (point-left);
+		} else {
+			//point is closer to right than left, then left moves.
+			left = point - (right-point);
 		}
-		return sum;
+
+		//Step 2. Make most fuzzified partition and most crisp partition.
+		double ac_F0 = point;
+		double ac_F1 = 0.5 * (left + point);
+		double bd_F0 = point;
+		double bd_F1 = 0.5 * (right + point);
+
+		//Step 3. Make F graded fuzzified partition
+		double ac_F = ac_F0 + (ac_F1 - ac_F0)*F;
+		double bd_F = bd_F0 + (bd_F1 - bd_F0)*F;
+
+		//Step 4. Get Fuzzified two point which has membership value 1.0.
+		two.add(ac_F);
+		two.add(bd_F);
+
+		return two;
 	}
 
-	double FEnt(DataSetInfo tra, int attri, double cardinality, double[] point, double[] index){
-		double SUM = 0;
-		for (int h = 0; h < tra.getCnum(); ++h){
-			double sum = 0;
-			for (int p = 0; p < index.length; ++p){
-				if (h == tra.getPattern((int)index[p]).getConClass()){
-					sum += StaticFuzzyFunc.calcMenbership(point, tra.getPattern((int)index[p]).getDimValue(attri));
-				}
-			}
-			if (sum > 0.0) SUM -= (sum / cardinality) * StaticGeneralFunc.log((sum / cardinality), 2.0);
-		}
-		return SUM;
+
+}
+
+
+class ForSortPattern{
+	double x;
+	double index;
+	int conClass;
+
+	ForSortPattern(double x, int conClass){
+		this.x = x;
+		this.conClass = conClass;
 	}
 
-	double FGain(DataSetInfo tra, boolean first, int attri, double low, double up, double min, double[] index){
-		if (first){
-			double[][] before = {{low, low, up, up}};
-			return WFEnt(tra, attri, before, index) - min;
-		}
-		else{
-			double[][] before = {{low, low, low, up}, {low, up, up, up}};
-			return WFEnt(tra, attri, before, index) - min;
-		}
+	double getX(){
+		return x;
 	}
 
-	double delta(DataSetInfo tra, boolean first, int attri, double low, double up, double xmin, double[] index){
-		if (first){
-			double[][] before = {{low, low, up, up}};
-			double[][] points = {{low, low, low, xmin}, {low, xmin, xmin, up}, {xmin, up, up, up}};
-			int[][] cla = new int [3][tra.getCnum()];
-			for (int p = 0; p < index.length; ++p){
-				if (tra.getPattern((int)index[p]).getDimValue(attri) <= xmin)	cla[0][tra.getPattern((int)index[p]).getConClass()]++;
-				else cla[2][tra.getPattern((int)index[p]).getConClass()]++;
-				cla[1][tra.getPattern((int)index[p]).getConClass()]++;
-			}
-			double[] M = new double [3];
-			for (int h = 0; h < tra.getCnum(); ++h){
-				for (int i = 0; i < 3; ++i){
-					if (cla[i][h] > 0) M[i]++;
-				}
-			}
-			double[] sum = new double [2];
-			for (int t = 0; t < before.length; ++t){
-				double cardinality = cardinality(tra, attri, before[t], index);
-				sum[0] += M[1] * FEnt(tra, attri, cardinality, before[t], index);
-			}
-			for (int i = 0; i < points.length; ++i){
-				double cardinality = cardinality(tra, attri, points[i], index);
-				sum[1] += M[i] * FEnt(tra, attri, cardinality, points[i], index);
-			}
-			return StaticGeneralFunc.log(Math.pow(3.0, M[1]) - 2.0, 2.0) - (sum[0] - sum[1]) ;
-		}
-		else{
-			double[][] before = {{low, low, low, up}, {low, up, up, up}};
-			double[][] points = {{low, low, low, xmin}, {low, xmin, xmin, up}, {xmin, up, up, up}};
-			int[][] cla = new int [3][tra.getCnum()];
-			for (int p = 0; p < index.length; ++p){
-				if (tra.getPattern((int)index[p]).getDimValue(attri) <= xmin)	cla[0][tra.getPattern((int)index[p]).getConClass()]++;
-				else cla[2][tra.getPattern((int)index[p]).getConClass()]++;
-				cla[1][tra.getPattern((int)index[p]).getConClass()]++;
-			}
-			double[] M = new double [3];
-			for (int h = 0; h < tra.getCnum(); ++h){
-				for (int i = 0; i < 3; ++i){
-					if (cla[i][h] > 0) M[i]++;
-				}
-			}
-			double[] sum = new double [2];
-			for (int t = 0; t < before.length; ++t){
-				double cardinality = cardinality(tra, attri, before[t], index);
-				sum[0] += M[1] * FEnt(tra, attri, cardinality, before[t], index);
-			}
-			for (int i = 0; i < points.length; ++i){
-				double cardinality = cardinality(tra, attri, points[i], index);
-				sum[1] += M[i] * FEnt(tra, attri, cardinality, points[i], index);
-			}
-			return StaticGeneralFunc.log(Math.pow(3.0, M[1]) - 2.0, 2.0) - (sum[0] - sum[1]) ;
-		}
+	int getConClass() {
+		return conClass;
+	}
+
+	double getIndex() {
+		return index;
 	}
 }

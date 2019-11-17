@@ -133,6 +133,7 @@ public class KnowledgeBase {
 		return (double)value;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void inputFML(String fileName) {
 		File fml = new File(fileName);
 		FuzzyInferenceSystem fs = JFML.load(fml);
@@ -166,6 +167,7 @@ public class KnowledgeBase {
 		JFML.writeFSTtoXML(fs,  fml);
 
 	}
+
 
 
 	public Variable getVariable(int idx) {
